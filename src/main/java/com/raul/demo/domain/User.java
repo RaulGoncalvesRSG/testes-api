@@ -10,8 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//@Data inclui o @Getter @Setter @ToString e @EqualsAndHashCode. Recomendado apenas qnd tiver poucos atributos
-@Data
+@Data	//@Data inclui o @Getter, @Setter, @ToString e @EqualsAndHashCode. Recomendado apenas qnd tiver poucos atributos
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
