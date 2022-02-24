@@ -11,6 +11,7 @@ import com.raul.demo.domain.User;
 import com.raul.demo.domain.dto.UserDTO;
 import com.raul.demo.respositories.UserRepository;
 import com.raul.demo.services.UserService;
+import com.raul.demo.services.exceptions.DataIntegratyViolationException;
 import com.raul.demo.services.exceptions.ObjectNotFoundException;
 
 @Service  //Com o @Service, o Spring consegue identificar esta classe como a implementação do UserService na Injeção de Dependência
@@ -34,6 +35,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(UserDTO obj) {
+    	findByEmail(obj);
         return repository.save(mapper.map(obj, User.class));
+    }
+    
+    private void findByEmail(UserDTO obj) {
+        Optional<User> user = repository.findByEmail(obj.getEmail());
+        
+        //isPresent - já existe um usuário no BD
+        if(user.isPresent()) {
+            throw new DataIntegratyViolationException("E-mail já cadastrado no sistema");
+        }
     }
 }
