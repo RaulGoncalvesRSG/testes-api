@@ -2,6 +2,8 @@ package com.raul.demo.services.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
@@ -17,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import com.raul.demo.domain.User;
 import com.raul.demo.domain.dto.UserDTO;
 import com.raul.demo.respositories.UserRepository;
+import com.raul.demo.services.exceptions.ObjectNotFoundException;
 
 class UserServiceImplTest {
 	
@@ -61,6 +64,23 @@ class UserServiceImplTest {
         assertEquals(ID, response.getId());
         assertEquals(NAME, response.getName());
         assertEquals(EMAIL, response.getEmail());
+    }
+    
+    @Test		//Qnd buscar por ID, então retorne um obj não encontrado
+    void whenFindByIdThenReturnAnObjectNotFoundException() {
+
+    //Qnd chamar o método findById, lance uma exceção do tipo ObjectNotFoundException. thenThrow faz lançar uma exceção
+        when(repository.findById(anyInt()))
+                .thenThrow(new ObjectNotFoundException(OBJETO_NAO_ENCONTRADO));
+
+        try{
+            service.findById(ID);
+        } 
+        catch (Exception ex) {
+        	//Assegura q a exceção lançada seja da classe ObjectNotFoundException
+            assertEquals(ObjectNotFoundException.class, ex.getClass());
+            assertEquals(OBJETO_NAO_ENCONTRADO, ex.getMessage());
+        }
     }
 
 	@Test
