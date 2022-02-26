@@ -2,10 +2,12 @@ package com.raul.demo.services.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -165,10 +167,29 @@ class UserServiceImplTest {
         }
     }
 
-	@Test
-	void testDelete() {
-		fail("Not yet implemented");
-	}
+    @Test		//Delete - cenário de sucesso
+    void deleteWithSuccess() {
+        when(repository.findById(anyInt())).thenReturn(optionalUser);
+        /*doNothing (não faça nd) qnd repository chamar o método deleteById passando qualquer int
+        utiliza doNothing qnd o método n retornar nada (void)*/
+        doNothing().when(repository).deleteById(anyInt());
+        service.delete(ID);
+        //Verifica qnds vezes o repository foi chamado no método deleteById
+        verify(repository, times(1)).deleteById(anyInt());
+    }
+
+    @Test		//Delete - cenário de erro
+    void whenDeleteThenReturnObjectNotFoundException() {
+        when(repository.findById(anyInt()))
+                .thenThrow(new ObjectNotFoundException(OBJETO_NAO_ENCONTRADO));
+        try {
+            service.delete(ID);
+        } 
+        catch (Exception ex) {
+            assertEquals(ObjectNotFoundException.class, ex.getClass());
+            assertEquals(OBJETO_NAO_ENCONTRADO, ex.getMessage());
+        }
+    }
 
 	//Inicializa as variáveis para n ter o valor null
 	private void startUser() {
