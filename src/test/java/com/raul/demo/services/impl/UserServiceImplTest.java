@@ -3,7 +3,9 @@ package com.raul.demo.services.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import com.raul.demo.domain.User;
 import com.raul.demo.domain.dto.UserDTO;
 import com.raul.demo.respositories.UserRepository;
+import com.raul.demo.services.exceptions.DataIntegratyViolationException;
 import com.raul.demo.services.exceptions.ObjectNotFoundException;
 
 class UserServiceImplTest {
@@ -101,17 +104,39 @@ class UserServiceImplTest {
         assertEquals(EMAIL, response.get(INDEX).getEmail());
         assertEquals(PASSWORD, response.get(INDEX).getPassword());
     }
+    
+    @Test		//Create - cenário de sucesso
+    void whenCreateThenReturnSuccess() {
+        when(repository.save(any())).thenReturn(user);
 
-	@Test
-	void testCreate() {
-		fail("Not yet implemented");
-	}
+        User response = service.create(userDTO); 	//Mocka a resposta do reposotory.save
 
-	@Test
-	void testUpdate() {
-		fail("Not yet implemented");
-	}
+        assertNotNull(response);
+        //Resposta do método create é do tipo User
+        assertEquals(User.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
+        assertEquals(PASSWORD, response.getPassword());
+    }
+    
+    @Test		//Create - cenário de erro
+    void whenCreateThenReturnAnDataIntegrityViolationException() {
+    	//Qnd chamar findByEmail passando qualquer Str, retorne Optional<User>
+        when(repository.findByEmail(anyString())).thenReturn(optionalUser);
 
+        try{
+            optionalUser.get().setId(2);		//ID diferente para entrar no catch
+            service.create(userDTO);
+        } 
+        catch (Exception ex) {
+        	//Assegura q a exceção lançada é do tipo DataIntegratyViolationException
+            assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            assertEquals(E_MAIL_JA_CADASTRADO_NO_SISTEMA, ex.getMessage());
+        }
+    }
+
+   
 	@Test
 	void testDelete() {
 		fail("Not yet implemented");
