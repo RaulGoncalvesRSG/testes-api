@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.raul.demo.domain.User;
 import com.raul.demo.domain.dto.UserDTO;
@@ -28,6 +29,7 @@ import com.raul.demo.respositories.UserRepository;
 import com.raul.demo.services.exceptions.DataIntegratyViolationException;
 import com.raul.demo.services.exceptions.ObjectNotFoundException;
 
+@SpringBootTest
 class UserServiceImplTest {
 	
 	private static final Integer ID = 1;
@@ -39,7 +41,7 @@ class UserServiceImplTest {
     private static final String OBJETO_NAO_ENCONTRADO = "Objeto não encontrado";
     private static final String E_MAIL_JA_CADASTRADO_NO_SISTEMA = "E-mail já cadastrado no sistema";
 	
-	@InjectMocks		//@InjectMocks cria uma instância real do obj
+	@InjectMocks	 //@InjectMocks cria uma instância real do obj, mas oq for injetado será Mock
     private UserServiceImpl service;			//Classe testada
 
     @Mock		//@Mock pq n precisa de uma instância real, n precisa acessar o BD
@@ -52,11 +54,18 @@ class UserServiceImplTest {
     private UserDTO userDTO;
     private Optional<User> optionalUser;
 
-    @BeforeEach
+    @BeforeEach			//@BeforeEach faz o método ser chamado inicialmente
     void setUp() {		//this faz referência a classe testada (UserServiceImpl)
         MockitoAnnotations.openMocks(this);		
         startUser();
     }
+    
+    //Inicializa as variáveis para n ter o valor null
+  	private void startUser() {
+  		user = new User(ID, NAME, EMAIL, PASSWORD);
+  		userDTO = new UserDTO(ID, NAME, EMAIL, PASSWORD);
+  		optionalUser = Optional.of(new User(ID, NAME, EMAIL, PASSWORD));	//Optional de User
+  	}
 
     @Test
     void whenFindByIdThenReturnAnUserInstance() {
@@ -64,7 +73,7 @@ class UserServiceImplTest {
         Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(optionalUser);
 
         User response = service.findById(ID);		//Retorna um obj do tipo User
-        Assertions.assertNotNull(response);
+        Assertions.assertNotNull(response);			//Assegura q a resposta n será null
 
         //1° arg é oq está esperando receber e o 2° argumento é oq está recebendo
         assertEquals(User.class, response.getClass());
@@ -161,7 +170,8 @@ class UserServiceImplTest {
         try{
             optionalUser.get().setId(2);
             service.update(userDTO);
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) {
             assertEquals(DataIntegratyViolationException.class, ex.getClass());
             assertEquals(E_MAIL_JA_CADASTRADO_NO_SISTEMA, ex.getMessage());
         }
@@ -189,12 +199,5 @@ class UserServiceImplTest {
             assertEquals(ObjectNotFoundException.class, ex.getClass());
             assertEquals(OBJETO_NAO_ENCONTRADO, ex.getMessage());
         }
-    }
-
-	//Inicializa as variáveis para n ter o valor null
-	private void startUser() {
-        user = new User(ID, NAME, EMAIL, PASSWORD);
-        userDTO = new UserDTO(ID, NAME, EMAIL, PASSWORD);
-        optionalUser = Optional.of(new User(ID, NAME, EMAIL, PASSWORD));	//Optional de User
     }
 }
