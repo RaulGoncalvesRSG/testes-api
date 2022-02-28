@@ -29,8 +29,8 @@ class UserResourceTest {
 
 	private static final Integer ID      = 1;
     private static final Integer INDEX   = 0;
-    private static final String NAME     = "Valdir";
-    private static final String EMAIL    = "valdir@mail.com";
+    private static final String NAME     = "João";
+    private static final String EMAIL    = "joao@mail.com";
     private static final String PASSWORD = "123";
 
     private User user = new User();
@@ -93,7 +93,9 @@ class UserResourceTest {
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(ResponseEntity.class, response.getClass());
+        //Assegura q o corpo da resposta é do tipo ArrayList
         assertEquals(ArrayList.class, response.getBody().getClass());
+        //Assegura q o obj dentro do ArrayList é do tipo UserDTO
         assertEquals(UserDTO.class, response.getBody().get(INDEX).getClass());
 
         assertEquals(ID, response.getBody().get(INDEX).getId());
@@ -102,15 +104,35 @@ class UserResourceTest {
         assertEquals(PASSWORD, response.getBody().get(INDEX).getPassword());
     }
 
-	@Test
-	void testCreate() {
-		fail("Not yet implemented");
-	}
+    @Test
+    void whenCreateThenReturnCreated() {
+        when(service.create(any())).thenReturn(user);
 
-	@Test
-	void testUpdate() {
-		fail("Not yet implemented");
-	}
+        ResponseEntity<UserDTO> response = resource.create(userDTO);
+
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        //Assegua q o header da resposta trouxe a chave "Location"
+        assertNotNull(response.getHeaders().get("Location"));
+    }
+
+    @Test
+    void whenUpdateThenReturnSuccess() {
+        when(service.update(userDTO)).thenReturn(user);
+        when(mapper.map(any(), any())).thenReturn(userDTO);
+
+        ResponseEntity<UserDTO> response = resource.update(ID, userDTO);
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(UserDTO.class, response.getBody().getClass());
+
+        assertEquals(ID, response.getBody().getId());
+        assertEquals(NAME, response.getBody().getName());
+        assertEquals(EMAIL, response.getBody().getEmail());
+    }
 
 	@Test
 	void testDelete() {
