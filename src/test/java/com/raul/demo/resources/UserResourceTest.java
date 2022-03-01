@@ -29,10 +29,10 @@ import com.raul.demo.services.impl.UserServiceImpl;
 @SpringBootTest
 class UserResourceTest {
 
-	private static final Integer ID      = 1;
-    private static final Integer INDEX   = 0;
-    private static final String NAME     = "João";
-    private static final String EMAIL    = "joao@mail.com";
+	private static final Integer ID = 1;
+    private static final Integer INDEX = 0;
+    private static final String NAME = "João";
+    private static final String EMAIL = "joao@mail.com";
     private static final String PASSWORD = "123";
 
     private User user = new User();
